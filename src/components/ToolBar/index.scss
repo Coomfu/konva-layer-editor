@@ -1,0 +1,237 @@
+.image-editor {
+  .tool-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--toolbar);
+    height: 100%;
+    background: white;
+    border-right: 1px solid #e8e8e8;
+    z-index: 3001;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  .tool-bar-buttons {
+    padding: 12px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .sidebar-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    user-select: none;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &.sidebar-button-selected {
+      background-color: #e6f4ff;
+      color: #1677ff;
+    }
+  }
+
+  .sidebar-button-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .sidebar-button-label {
+    font-size: 11px;
+    line-height: 14px;
+    text-align: center;
+  }
+
+  // Panel styles
+  .tool-bar-panel {
+    flex: 1;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .panel-section {
+    margin-bottom: 16px;
+  }
+
+  .panel-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  .panel-label-small {
+    font-size: 11px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .panel-description {
+    font-size: 11px;
+    color: #999;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .panel-confirm-btn {
+    margin-top: auto;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  // Cutout panel compact styles
+  .tool-buttons-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .tool-button-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: 1px solid #d9d9d9;
+    background-color: white;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      border-color: #4096ff;
+      color: #4096ff;
+    }
+
+    &.tool-button-selected {
+      background-color: #e6f4ff;
+      border-color: #1677ff;
+      color: #1677ff;
+    }
+  }
+
+  .tool-button-with-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 8px 4px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    border: 1px solid #d9d9d9;
+    background-color: white;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      margin-bottom: 4px;
+    }
+
+    &:hover {
+      border-color: #4096ff;
+      color: #4096ff;
+    }
+
+    &.tool-button-selected {
+      background-color: #e6f4ff;
+      border-color: #1677ff;
+      color: #1677ff;
+    }
+  }
+
+  .tool-button-text {
+    font-size: 11px;
+    line-height: 14px;
+    text-align: center;
+  }
+
+  // Vertical slider section
+  .vertical-slider-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    .ant-slider-vertical {
+      margin: 8px 0;
+    }
+  }
+
+  .slider-value {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    margin-top: 4px;
+    text-align: center;
+  }
+
+  // Expand panel compact styles
+  .ratio-buttons-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ratio-button-compact {
+    padding: 8px 4px;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-size: 12px;
+    border: 1px solid #d9d9d9;
+    background-color: white;
+
+    &:hover {
+      border-color: #4096ff;
+      color: #4096ff;
+    }
+
+    &.ratio-button-selected {
+      background-color: #e6f4ff;
+      border-color: #1677ff;
+      color: #1677ff;
+    }
+
+    &.ratio-button-disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      
+      &:hover {
+        border-color: #d9d9d9;
+        color: inherit;
+      }
+    }
+  }
+}

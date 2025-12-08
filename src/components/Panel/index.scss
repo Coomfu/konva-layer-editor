@@ -1,0 +1,310 @@
+.image-editor {
+  .layer-panel {
+    position: absolute;
+    right: 0;
+    width: 200px;
+    height: 100%;
+    background: white;
+    z-index: 3002;
+    box-sizing: border-box;
+    user-select: none;
+    border-left: 1px solid #e8e8e8;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    // 导出section - 紧凑设计
+    .export-section {
+      flex-shrink: 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    // section header
+    .panel-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 2px;
+      user-select: none;
+      border-radius: 6px;
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+
+        .section-icon {
+          font-size: 14px;
+          color: #666;
+        }
+      }
+
+      .collapse-icon {
+        font-size: 12px;
+        color: #999;
+        transition: transform 0.2s;
+      cursor: pointer;
+      }
+
+      .add-layer-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+        color: #666;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.06);
+          color: #1677ff;
+        }
+      }
+    }
+
+    .panel-section-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin: 0 -8px 0 0;
+      padding-right: 8px;
+      min-height: 0;
+    }
+
+    // 统一标题样式 (旧的h3，逐步替换)
+    h3 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      padding-bottom: 8px;
+    }
+
+    // 生成历史区域 - 占60% (折叠时为0)
+    .history-layers {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+      transition: flex 0.3s ease;
+
+      &.collapsed {
+        flex: 0 0 auto !important; // 折叠时不占空间
+        transition: none !important;
+      }
+
+      &:not(.collapsed) {
+        flex: 6; // 展开时占6份
+      }
+
+      > div:last-child {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin: 0 -8px 0 0;
+        padding-right: 8px;
+      }
+
+      h3 {
+        flex-shrink: 0;
+      }
+    }
+
+    .history-group {
+      margin-bottom: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .history-group-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .history-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-content: flex-start;
+    }
+
+    .history-image {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid #e8e8e8;
+      transition: all 0.2s;
+      cursor: pointer;
+
+      &:hover {
+        border-color: #4096ff;
+        transform: scale(1.05);
+      }
+
+      &.history-image-active {
+        border-color: #1677ff;
+        border-width: 2px;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background-color: white;
+      }
+
+      svg {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 18px;
+        pointer-events: none;
+      }
+    }
+
+    // 图层区域 - 占40% (折叠时为0)
+    > div:nth-child(3) {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+      transition: flex 0.3s ease;
+
+      &.collapsed {
+        flex: 0 0 auto !important; // 折叠时不占空间
+      }
+
+      &:not(.collapsed) {
+        flex: 4; // 展开时占4份
+      }
+
+      .layers {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin: 0 -8px 0 0;
+        padding-right: 8px;
+      }
+    }
+
+    .layer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      margin: 3px 0;
+      height: 36px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+
+      &.layer-selected {
+        background-color: #e6f4ff;
+        color: #1677ff;
+      }
+
+      .layer-image-preview {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        margin-right: 8px;
+        border: 1px solid #e8e8e8;
+        overflow: hidden;
+        object-fit: contain;
+        background-color: white;
+        flex-shrink: 0;
+      }
+
+      .layer-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
+      }
+
+      .anticon {
+        font-size: 14px;
+        padding: 4px;
+        cursor: pointer;
+        transition: color 0.2s;
+
+        &:hover {
+          color: #1677ff;
+        }
+      }
+    }
+
+    // 导出按钮
+    > button {
+      flex-shrink: 0;
+      margin-top: auto;
+    }
+  }
+}
+
+// 导出下拉菜单样式
+.layer-panel-export-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  min-width: 200px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+
+  .export-option-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .export-label {
+      font-size: 12px;
+      color: #666;
+      white-space: nowrap;
+      min-width: 40px;
+    }
+  }
+}
+
+.image-editor-history-image-dropdown {
+  position: relative;
+  border-radius: 8px;
+
+  img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  span {
+    display: block;
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    background-color: white;
+    padding: 0 4px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+}

@@ -1,0 +1,26 @@
+module.exports = {
+  root: true,
+  env: { browser: true, es2020: true },
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+    'plugin:react-hooks/recommended',
+  ],
+  ignorePatterns: ['dist', '.eslintrc.cjs', 'vite.config.ts', 'src/assets/iconfont'],
+  parser: '@typescript-eslint/parser',
+  plugins: ['react-refresh'],
+  rules: {
+    'prettier/prettier': 'error',
+    'no-console': 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'react-refresh/only-export-components': 'off',
+    'react-hooks/exhaustive-deps': 'off',
+    'no-empty': 'off',
+    // '@typescript-eslint/no-unused-vars': process.env.NODE_ENV === 'production' ? ['error', { argsIgnorePattern: '^_' }] : 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
+    'prettier/prettier': ['error', { endOfLine: 'auto' }],
+  },
+};

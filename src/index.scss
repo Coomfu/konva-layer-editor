@@ -1,0 +1,22 @@
+.image-editor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-family: sans-serif;
+  --menu: 200px;
+  --toolbar: 80px;
+  transform-style: preserve-3d;
+  overflow: hidden;
+
+  .konvajs-content {
+    background: #f6f8fa;
+  }
+
+  .image-editor-viewer {
+    position: absolute !important;
+    left: var(--toolbar);
+    top: 0px;
+    width: calc(100% - var(--menu) - var(--toolbar));
+    height: 100%;
+  }
+}

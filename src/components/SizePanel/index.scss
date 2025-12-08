@@ -1,0 +1,124 @@
+.size-panel {
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+
+  .size-panel-section {
+    margin-bottom: 6px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .size-panel-title {
+    font-weight: 500;
+    color: #333333;
+    margin-bottom: 6px;
+  }
+
+  .size-panel-dimensions {
+    display: flex;
+    align-items: center;
+
+    .dimension-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid #e5e5e5;
+      border-radius: 20px;
+      padding: 0 12px;
+      flex: 1;
+
+      .dimension-label {
+        min-width: 20px;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+      }
+      .dimension-field {
+        width: 50px;
+        border: none;
+        box-shadow: none;
+        flex: 1;
+      }
+    }
+  }
+  .size-panel-dimensions.disabled {
+    .dimension-input {
+      background-color: #f2f3f5;
+      .dimension-field {
+        cursor: not-allowed;
+      }
+      .ant-input-number {
+        background-color: transparent;
+      }
+    }
+    .lock-icon {
+      cursor: not-allowed;
+    }
+    .lock-icon:hover {
+      background: transparent;
+    }
+  }
+
+  .lock-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 0 4px;
+    transition: all 0.2s;
+    border-radius: 8px;
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+
+  .ratio-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0 4px;
+
+    .ratio-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+
+      &:hover {
+        background: #f5f5f5;
+      }
+
+      .ratio-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        margin-bottom: 2px;
+
+        .ratio-shape {
+          border: 2px solid #d9d9d9;
+          border-radius: 2px;
+          background: transparent;
+        }
+      }
+
+      .ratio-label {
+        font-size: 12px;
+        color: #666666;
+        font-weight: 500;
+      }
+    }
+  }
+}
