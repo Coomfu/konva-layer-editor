@@ -10,6 +10,7 @@ import SizePanel from '../SizePanel';
 import { DownOutlined } from '@ant-design/icons';
 import './index.scss';
 import classNames from 'classnames';
+import SubToolBar from '../SubToolBar';
 
 const ControlBar = () => {
   const {
@@ -64,6 +65,38 @@ const ControlBar = () => {
     <div className="control-bar">
       <div className="flex-center-center control-bar-rect">
         <div className="control-bar-item">
+          <Select
+            style={{ width: '85px' }}
+            value={`${Math.round(zoomScale * 100)}%`}
+            onSelect={onChangeZoomScale}
+            options={ZOOM_SCALE_OPTIONS.map((opt) => ({
+              label: opt.label,
+              value: opt.value === 'auto' ? 'auto' : `${Math.round(Number(opt.value) * 100)}%`,
+              oriValue: opt.value,
+            }))}
+          />
+        </div>
+        <div
+          className={classNames('control-bar-item', {
+            'control-bar-item-disabled': !historyManager?.hasUndo,
+          })}
+          onClick={() => {
+            if (!historyManager?.hasUndo) return;
+            historyManager?.undo();
+          }}>
+          <UndoIcon />
+        </div>
+        <div
+          className={classNames('control-bar-item', {
+            'control-bar-item-disabled': !historyManager?.hasRedo,
+          })}
+          onClick={() => {
+            if (!historyManager?.hasRedo) return;
+            historyManager?.redo();
+          }}>
+          <RedoIcon />
+        </div>
+        <div className="control-bar-item">
           <Dropdown
             placement="bottom"
             trigger={['click']}
@@ -76,41 +109,8 @@ const ControlBar = () => {
             </div>
           </Dropdown>
         </div>
-        <div
-          className={classNames('control-bar-item', {
-            'control-bar-item-disabled': !historyManager?.hasUndo,
-          })}
-          onClick={() => {
-            if (!historyManager?.hasUndo) return;
-            historyManager?.undo();
-            setCursor?.('default');
-          }}>
-          <UndoIcon />
-        </div>
-        <div
-          className={classNames('control-bar-item', {
-            'control-bar-item-disabled': !historyManager?.hasRedo,
-          })}
-          onClick={() => {
-            if (!historyManager?.hasRedo) return;
-            historyManager?.redo();
-            setCursor?.('default');
-          }}>
-          <RedoIcon />
-        </div>
-        <div className="control-bar-item">
-          <Select
-            style={{ width: '85px' }}
-            value={`${Math.round(zoomScale * 100)}%`}
-            onSelect={onChangeZoomScale}
-            options={ZOOM_SCALE_OPTIONS.map((opt) => ({
-              label: opt.label,
-              value: opt.value === 'auto' ? 'auto' : `${Math.round(Number(opt.value) * 100)}%`,
-              oriValue: opt.value,
-            }))}
-          />
-        </div>
       </div>
+      <SubToolBar />
     </div>
   );
 };

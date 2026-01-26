@@ -87,7 +87,7 @@ npm run dev
 | `Cmd/Ctrl + C` | 复制选中图层 |
 | `Cmd/Ctrl + V` | 粘贴图层 |
 | `Cmd/Ctrl + Z` | 撤销 |
-| `Cmd/Ctrl + Shift + Z` | 重做 |
+| `Cmd + Shift + Z / Ctrl + Alt + Z` | 重做 |
 | `Delete / Backspace` | 删除选中图层 |
 | `滚轮` | 平移 |
 | `Ctrl + 滚轮或多指缩放` | 缩放 |

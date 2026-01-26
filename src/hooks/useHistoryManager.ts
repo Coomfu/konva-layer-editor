@@ -73,7 +73,7 @@ export const useHistoryManager = ({ keyManager }: { keyManager: KeyManager }): H
       },
     });
     keyManager?.registerKey({
-      keys: ['shift', isMacintosh ? 'meta' : 'ctrl', 'z'],
+      keys: [isMacintosh ? 'shift' : 'ctrl', isMacintosh ? 'meta' : 'alt', 'z'],
       callback: () => {
         redo();
       },
@@ -81,7 +81,7 @@ export const useHistoryManager = ({ keyManager }: { keyManager: KeyManager }): H
 
     return () => {
       keyManager.unregisterKey({ keys: [isMacintosh ? 'meta' : 'ctrl', 'z'] });
-      keyManager.unregisterKey({ keys: ['shift', isMacintosh ? 'meta' : 'ctrl', 'z'] });
+      keyManager.unregisterKey({ keys: [isMacintosh ? 'shift' : 'ctrl', isMacintosh ? 'meta' : 'alt', 'z'] });
     };
   }, [undo, redo]);
 

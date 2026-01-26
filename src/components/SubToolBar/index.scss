@@ -1,0 +1,162 @@
+.sub-tool-bar {
+  // Panel styles
+  .tool-bar-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .panel-section {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .panel-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    text-align: center;
+  }
+
+  .panel-label-small {
+    font-size: 11px;
+    font-weight: 500;
+    color: #666;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .panel-description {
+    font-size: 11px;
+    color: #999;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .panel-confirm-btn {
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+
+  // Cutout panel compact styles
+  .tool-buttons-compact {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tool-button-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: 1px solid #d9d9d9;
+    background-color: white;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      border-color: #4096ff;
+      color: #4096ff;
+    }
+
+    &.tool-button-selected {
+      background-color: #e6f4ff;
+      border-color: #1677ff;
+      color: #1677ff;
+    }
+  }
+
+  .tool-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    background-color: white;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      border-color: #4096ff;
+      color: #4096ff;
+    }
+
+    &.tool-button-selected {
+      background-color: #e6f4ff;
+      border-color: #1677ff;
+      color: #1677ff;
+    }
+  }
+
+  // slider section
+  .slider-section {
+    display: flex;
+    align-items: center;
+    
+    .ant-slider {
+      margin: 0 12px;
+    }
+  }
+
+  .slider-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1677ff;
+    text-align: center;
+  }
+
+  // Expand panel compact styles
+  .ratio-buttons-compact {
+    display: flex;
+    gap: 4px;
+  }
+
+  .ratio-button-compact {
+    padding: 1px 8px;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-size: 12px;
+    border: 1px solid #d9d9d9;
+    background-color: white;
+    white-space: nowrap;
+
+    &:hover {
+      border-color: #4096ff;
+      color: #4096ff;
+    }
+
+    &.ratio-button-selected {
+      background-color: #e6f4ff;
+      border-color: #1677ff;
+      color: #1677ff;
+    }
+
+    &.ratio-button-disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      
+      &:hover {
+        border-color: #d9d9d9;
+        color: inherit;
+      }
+    }
+  }
+}

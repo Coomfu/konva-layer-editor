@@ -4,7 +4,8 @@
   height: 100%;
   font-family: sans-serif;
   --menu: 200px;
-  --toolbar: 80px;
+  --toolbar: 60px;
+  --control-bar: 40px;
   transform-style: preserve-3d;
   overflow: hidden;
 
@@ -15,8 +16,8 @@
   .image-editor-viewer {
     position: absolute !important;
     left: var(--toolbar);
-    top: 0px;
+    top: var(--control-bar);
     width: calc(100% - var(--menu) - var(--toolbar));
-    height: 100%;
+    height: calc(100% - var(--control-bar));
   }
 }

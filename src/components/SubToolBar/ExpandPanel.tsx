@@ -109,16 +109,6 @@ const ExpandPanel = () => {
   return (
     <div className="tool-bar-panel">
       <div className="panel-section">
-        <div className="panel-label-small">原始</div>
-        <Select
-          className="mb-4"
-          style={{ width: '100%' }}
-          size="small"
-          disabled={expandState?.type !== 'original'}
-          options={originalExpandOptions}
-          value={expandState?.times}
-          onChange={(value) => expandState?.setTimes(value)}
-        />
         <div
           className={`ratio-button-compact ${expandState?.type === 'original' ? 'ratio-button-selected' : ''}`}
           onClick={() => {
@@ -135,6 +125,14 @@ const ExpandPanel = () => {
           }}>
           原始
         </div>
+        <Select
+          style={{ width: '100%' }}
+          size="small"
+          disabled={expandState?.type !== 'original'}
+          options={originalExpandOptions}
+          value={expandState?.times}
+          onChange={(value) => expandState?.setTimes(value)}
+        />
       </div>
 
       <div className="panel-section">
@@ -163,8 +161,8 @@ const ExpandPanel = () => {
         </div>
       </div>
 
-      <Button type="primary" block size="large" onClick={onExpand} className="panel-confirm-btn">
-        确认扩图
+      <Button type="primary" onClick={onExpand} className="panel-confirm-btn">
+        扩图
       </Button>
     </div>
   );

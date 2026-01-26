@@ -15,8 +15,8 @@ const SizePanel: React.FC<{
   setSize: (size: { width: number; height: number; ratio?: string }) => void;
   disabledInput?: boolean;
 }> = ({ size, setSize, disabledInput = false }) => {
-  const [width, setWidth] = useState<number>(size.width || 1024);
-  const [height, setHeight] = useState<number>(size.height || 1024);
+  const [width, setWidth] = useState<number>(size.width ?? 1024);
+  const [height, setHeight] = useState<number>(size.height ?? 1024);
   const [isLocked, setIsLocked] = useState<boolean>(true);
   const [lockRatio, setLockRatio] = useState<number>(1);
 
@@ -77,7 +77,7 @@ const SizePanel: React.FC<{
                   e.preventDefault();
                 }
               }}
-              onChange={(value) => handleWidthChange(Number(value) || 1)}
+              onChange={(value) => handleWidthChange(Number(value) ?? 1)}
               onBlur={(e) => {
                 const value = Number(e.target.value);
                 setSize({
@@ -115,7 +115,7 @@ const SizePanel: React.FC<{
                   e.preventDefault();
                 }
               }}
-              onChange={(value) => handleHeightChange(Number(value) || 1)}
+              onChange={(value) => handleHeightChange(Number(value) ?? 1)}
               onBlur={(e) => {
                 const value = Number(e.target.value);
                 setSize({

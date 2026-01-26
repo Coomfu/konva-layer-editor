@@ -139,7 +139,7 @@ const useZoom = ({
     if (selectedLayer && cursor !== 'default') {
       focusLayer();
     }
-  }, [selectedLayer, cursor]);
+  }, [selectedLayer?.id, cursor]);
 
   return {
     zoomScale,

@@ -1,4 +1,4 @@
-import { Button, Slider } from 'antd';
+import { Button, Slider, Tooltip } from 'antd';
 import { useContext } from 'react';
 import EditorContext from '../../context';
 import PenIcon from '../../assets/pen.svg';
@@ -59,29 +59,30 @@ const CutoutPanel = () => {
       <div className="panel-section">
         <div className="tool-buttons-compact">
           <div
-            className={`tool-button-with-label ${drawingCanvas?.tool === 'brush' ? 'tool-button-selected' : ''}`}
+            className={`tool-button ${drawingCanvas?.tool === 'brush' ? 'tool-button-selected' : ''}`}
             onClick={() => drawingCanvas?.setTool('brush')}>
-            <PenIcon />
-            <span className="tool-button-text">涂抹</span>
+            <Tooltip title="涂抹">
+              <PenIcon />
+            </Tooltip>
           </div>
           <div
-            className={`tool-button-with-label ${drawingCanvas?.tool === 'eraser' ? 'tool-button-selected' : ''}`}
+            className={`tool-button ${drawingCanvas?.tool === 'eraser' ? 'tool-button-selected' : ''}`}
             onClick={() => drawingCanvas?.setTool('eraser')}>
-            <EraserIcon />
-            <span className="tool-button-text">擦除</span>
+            <Tooltip title="擦除">
+              <EraserIcon />
+            </Tooltip>
           </div>
-          <div className="tool-button-with-label" onClick={onSelectReverse}>
-            <InvertSelectionIcon />
-            <span className="tool-button-text">反选</span>
+          <div className="tool-button" onClick={onSelectReverse}>
+            <Tooltip title="反选">
+              <InvertSelectionIcon />
+            </Tooltip>
           </div>
         </div>
       </div>
 
-      <div className="panel-section vertical-slider-section">
-        <div className="panel-label-small">大小</div>
+      <div className="panel-section slider-section">
         <Slider
-          vertical
-          style={{ height: 120 }}
+          style={{ width: 120 }}
           disabled={drawingCanvas?.tool !== 'brush' && drawingCanvas?.tool !== 'eraser'}
           max={40}
           min={1}
@@ -91,8 +92,8 @@ const CutoutPanel = () => {
         <div className="slider-value">{drawingCanvas?.lineWidth}</div>
       </div>
 
-      <Button type="primary" block size="large" onClick={onCutOut} className="panel-confirm-btn">
-        确认抠图
+      <Button type="primary" onClick={onCutOut} className="panel-confirm-btn">
+        抠图
       </Button>
     </div>
   );

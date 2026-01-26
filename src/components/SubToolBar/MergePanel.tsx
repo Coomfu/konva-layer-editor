@@ -39,8 +39,8 @@ const MergePanel = () => {
         </div>
       </div>
 
-      <Button type="primary" block size="large" onClick={onMerge} className="panel-confirm-btn">
-        确认合并
+      <Button type="primary" onClick={onMerge} className="panel-confirm-btn">
+        合并
       </Button>
     </div>
   );

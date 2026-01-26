@@ -129,6 +129,7 @@ const Viewport: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
           width: mousePos.x - prev.x,
           height: mousePos.y - prev.y,
         }));
+        rafId.current = null;
       });
     },
     [isBoxSelecting],

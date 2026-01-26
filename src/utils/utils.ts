@@ -22,7 +22,7 @@ export const getCanvasPointer = (stage: Stage): Position => {
 export const getCanvasAbsolutePosition = (node: Node): Position => {
   const absolutePosition = node.getAbsolutePosition();
   const stage = node.getStage();
-  const currentScale = stage?.scaleX() || 1;
+  const currentScale = stage?.scaleX() ?? 1;
   const stagePos = stage?.position() || { x: 0, y: 0 };
 
   return {
@@ -34,7 +34,7 @@ export const getCanvasAbsolutePosition = (node: Node): Position => {
 export const getCanvasRect = (node: Node): Rect => {
   const stage = node.getStage();
   const rect = node.getClientRect();
-  const scale = stage?.scaleX() || 1;
+  const scale = stage?.scaleX() ?? 1;
   const pos = stage?.position() || { x: 0, y: 0 };
   return {
     x: (rect.x - pos.x) / scale,

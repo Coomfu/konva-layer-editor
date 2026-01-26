@@ -1,22 +1,21 @@
 .image-editor {
   .control-bar {
-    position: absolute;
-    left: calc(var(--toolbar) + (100% - var(--menu) - var(--toolbar)) / 2);
-    top: 12px;
-    transform: translateX(-50%);
+    position: fixed;
+    left: var(--toolbar);
+    top: 0;
     z-index: 3001;
     display: flex;
     flex-direction: row;
     gap: 6px;
     align-items: center;
+    background-color: white;
+    width: calc(100vw - var(--toolbar) - var(--menu));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
 
   .control-bar-rect {
-    padding: 6px 8px;
-    background-color: white;
-    border-radius: 8px;
+    padding: 2px;
     display: inline-flex;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     gap: 4px;
   }
 
@@ -25,7 +24,6 @@
     min-height: 36px;
     border-radius: 6px;
     text-align: center;
-    padding: 6px 10px;
     cursor: pointer;
     line-height: 24px;
     transition: background-color 0.2s;

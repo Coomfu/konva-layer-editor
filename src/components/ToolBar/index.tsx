@@ -5,9 +5,6 @@ import MoveIcon from '../../assets/move.svg';
 import CutoutIcon from '../../assets/cutout.svg';
 import ExpandIcon from '../../assets/expand.svg';
 import MergeIcon from '../../assets/merge.svg';
-import CutoutPanel from './CutoutPanel';
-import ExpandPanel from './ExpandPanel';
-import MergePanel from './MergePanel';
 import './index.scss';
 
 const ToolBar = () => {
@@ -47,19 +44,6 @@ const ToolBar = () => {
     },
   ];
 
-  const renderPanel = () => {
-    switch (cursor) {
-      case 'cutout':
-        return <CutoutPanel />;
-      case 'expand':
-        return <ExpandPanel />;
-      case 'merge':
-        return <MergePanel />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="tool-bar">
       <div className="tool-bar-buttons">
@@ -73,8 +57,6 @@ const ToolBar = () => {
           </div>
         ))}
       </div>
-
-      {renderPanel()}
     </div>
   );
 };
