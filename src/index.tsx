@@ -5,6 +5,7 @@ import Panel from './components/Panel';
 import Viewport from './components/Viewport';
 import ControlBar from './components/ControlBar';
 import ToolBar from './components/ToolBar';
+import DialogPanel from './components/SubToolBar/DialogPanel';
 import { Spin } from 'antd';
 
 const Editor = () => {
@@ -17,6 +18,7 @@ const Editor = () => {
           <ToolBar />
           <Panel />
           <ControlBar />
+          <DialogPanel />
           <div className="image-editor-viewer">
             <Viewport
               style={{

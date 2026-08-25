@@ -1,6 +1,7 @@
 // canvas相关工具函数
 
 import { Layer } from '../type/types';
+import { MAX_FILE_SIZE } from './const';
 import { getRotatedBounds } from './utils';
 
 export const getLayerData = (layer: Layer, exportFormat: 'JPG' | 'PNG' = 'PNG'): Promise<Blob> => {
@@ -144,6 +145,69 @@ export const getLayerCanvas = (layer: Layer): HTMLCanvasElement | null => {
     console.error('err', err);
     return null;
   }
+};
+
+export const resizeCanvas = (sourceCanvas: HTMLCanvasElement, width: number, height: number): HTMLCanvasElement => {
+  const targetCanvas = document.createElement('canvas');
+  targetCanvas.width = Math.max(1, Math.round(width));
+  targetCanvas.height = Math.max(1, Math.round(height));
+
+  const ctx = targetCanvas.getContext('2d');
+  if (!ctx) {
+    return sourceCanvas;
+  }
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(sourceCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
+
+  return targetCanvas;
+};
+
+export const estimateWorstCasePngSize = (width: number, height: number) => {
+  const imageDataBytes = height * (width * 4 + 1);
+  const deflateBlockCount = Math.ceil(imageDataBytes / 65535);
+
+  return imageDataBytes + 63 + deflateBlockCount * 5;
+};
+
+export const getSafeCanvasSizeByMaxPngSize = ({
+  width,
+  height,
+  maxFileSize = MAX_FILE_SIZE,
+}: {
+  width: number;
+  height: number;
+  maxFileSize?: number;
+}) => {
+  if (estimateWorstCasePngSize(width, height) <= maxFileSize) {
+    return { width, height };
+  }
+
+  let low = 1;
+  let high = Math.max(width, height);
+  let safeWidth = 1;
+  let safeHeight = 1;
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    const scale = mid / Math.max(width, height);
+    const nextWidth = Math.max(1, Math.floor(width * scale));
+    const nextHeight = Math.max(1, Math.floor(height * scale));
+
+    if (estimateWorstCasePngSize(nextWidth, nextHeight) <= maxFileSize) {
+      safeWidth = nextWidth;
+      safeHeight = nextHeight;
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  return {
+    width: safeWidth,
+    height: safeHeight,
+  };
 };
 
 export const getCanvasFile = (canvas: HTMLCanvasElement, exportFormat: 'JPG' | 'PNG' = 'PNG') => {

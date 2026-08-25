@@ -147,37 +147,49 @@ const useCachedImages = ({
   );
 
   useEffect(() => {
-    if (!setSelectedIds || !setLoading) return;
+    // 1. 同步已在 Map 缓存中的图片到 React state（解决外部导入或预加载后未同步至 state 的问题）
+    const cachedImagesToSync: { [id: string]: HTMLImageElement } = {};
+    let hasCachedToSync = false;
 
-    const needLoading =
-      layers.filter((layer) => !imagesCache.has(layer.fileId) && !imagesQueue.has(layer.fileId)).length ||
-      layersHistory.filter((layer) =>
-        layer.imgList?.some((img) => !imagesCache.has(img.fileId) && !imagesQueue.has(img.fileId)),
-      ).length;
+    layers.forEach((layer) => {
+      if (layer.fileId && imagesCache.has(layer.fileId) && !images[layer.fileId]) {
+        cachedImagesToSync[layer.fileId] = imagesCache.get(layer.fileId)!;
+        hasCachedToSync = true;
+      }
+    });
 
-    if (needLoading) {
+    layersHistory.forEach((item) => {
+      item.imgList?.forEach((img) => {
+        if (img.fileId && imagesCache.has(img.fileId) && !images[img.fileId]) {
+          cachedImagesToSync[img.fileId] = imagesCache.get(img.fileId)!;
+          hasCachedToSync = true;
+        }
+      });
+    });
+
+    if (hasCachedToSync) {
+      setImages((prev) => ({ ...prev, ...cachedImagesToSync }));
+    }
+
+    // 2. 加载尚未进入缓存的图片
+    const unCachedLayers = layers.filter((layer) => !imagesCache.has(layer.fileId) && !imagesQueue.has(layer.fileId));
+    const unCachedHistory = layersHistory.flatMap((layer) =>
+      (layer.imgList ?? []).filter((img) => !imagesCache.has(img.fileId) && !imagesQueue.has(img.fileId)),
+    );
+
+    if (unCachedLayers.length || unCachedHistory.length) {
       setLoading?.(true);
 
-      // 初始化所有 fileId 的加载状态为 true
+      // 初始化所有未加载 fileId 的加载状态为 true
       setLoadingStatus((prev: { [id: string]: boolean | 'error' }) => {
-        if (layers.length) {
-          layers.forEach((layer) => {
-            if (!imagesCache.has(layer.fileId)) {
-              prev[layer.fileId] = true;
-            }
-          });
-        }
-        if (layersHistory.length) {
-          layersHistory.forEach((layer: LayerHistory) => {
-            layer.imgList?.forEach((img) => {
-              if (!imagesCache.has(img.fileId)) {
-                prev[img.fileId] = true;
-              }
-            });
-          });
-        }
-
-        return prev;
+        const next = { ...prev };
+        unCachedLayers.forEach((layer) => {
+          next[layer.fileId] = true;
+        });
+        unCachedHistory.forEach((img) => {
+          next[img.fileId] = true;
+        });
+        return next;
       });
 
       // 实时更新图片加载完成状态
@@ -187,20 +199,15 @@ const useCachedImages = ({
       };
 
       // 优先处理 layers
-      loadImages(layers, (result) => {
-        updateImageAndStatus(result);
-      }).then(() => {
-        setSelectedIds?.(layers.length ? [layers[layers.length - 1].id] : []);
+      loadImages(unCachedLayers, updateImageAndStatus).then(() => {
+        if (layers.length && setSelectedIds) {
+          setSelectedIds((prev) => (prev.length ? prev : [layers[layers.length - 1].id]));
+        }
         setLoading?.(false);
-        loadImages(
-          layersHistory.flatMap((layer) => layer.imgList ?? []),
-          (result) => {
-            updateImageAndStatus(result);
-          },
-        );
+        loadImages(unCachedHistory, updateImageAndStatus);
       });
     }
-  }, [layers, layersHistory, setSelectedIds, setLoading]);
+  }, [layers, layersHistory, setSelectedIds, setLoading, images]);
 
   return { images, loadingStatus, loadImage };
 };

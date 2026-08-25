@@ -16,7 +16,7 @@ const Menu = () => {
     selectedIds = [],
     selectedLayers = [],
     viewportPos,
-    viewportSize,
+    viewportSize = { width: 1024, height: 1024 },
     stageRef,
     mainLayerRef,
     imagesCache = {},
@@ -25,18 +25,24 @@ const Menu = () => {
   const [exportFormat, setExportFormat] = useState<'PNG' | 'JPG'>('PNG');
   const [exportContent, setExportContent] = useState<'selectedLayers' | 'allLayers' | 'canvas'>('selectedLayers');
 
-  const exportLayers = async (layers: Layer[]) => {
+  const exportLayers = async (layersToExport: Layer[]) => {
     const zip = new JSZip();
 
-    if (layers.length === 1) {
-      const file = await getLayerFile({ ...layers[0], image: imagesCache?.[layers[0].fileId] }, exportFormat);
+    if (layersToExport.length === 1) {
+      const file = await getLayerFile(
+        { ...layersToExport[0], image: imagesCache?.[layersToExport[0].fileId] },
+        exportFormat,
+      );
       saveAs(file, exportFormat === 'PNG' ? 'export.png' : 'export.jpg');
       return;
     }
 
-    for (let i = 0; i < layers.length; i++) {
+    for (let i = 0; i < layersToExport.length; i++) {
       try {
-        const blob = await getLayerData({ ...layers[i], image: imagesCache?.[layers[i].fileId] }, exportFormat);
+        const blob = await getLayerData(
+          { ...layersToExport[i], image: imagesCache?.[layersToExport[i].fileId] },
+          exportFormat,
+        );
         const ext = exportFormat === 'JPG' ? 'jpg' : 'png';
         zip.file(`image_${i + 1}.${ext}`, blob);
       } catch (err) {
@@ -88,7 +94,7 @@ const Menu = () => {
 
   return (
     <div className="layer-panel">
-      {/* 导出section */}
+      {/* 导出图片section */}
       <div className="export-section">
         <Dropdown
           placement="bottomRight"
@@ -126,7 +132,7 @@ const Menu = () => {
           )}>
           <Button className="w100" onClick={onExport} type="primary" disabled={!selectedIds.length}>
             <DownloadOutlined />
-            <span>导出</span>
+            <span>导出图片</span>
           </Button>
         </Dropdown>
       </div>

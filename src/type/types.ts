@@ -55,4 +55,4 @@ export type LayerHistory = {
   layerName: string;
 };
 
-export type Cursor = 'default' | 'cutout' | 'select' | 'expand' | 'merge';
+export type Cursor = 'default' | 'cutout' | 'select' | 'expand' | 'merge' | 'dialog';

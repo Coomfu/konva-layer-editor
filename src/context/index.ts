@@ -17,6 +17,7 @@ export type EditorContextType = {
 
   // 图层管理
   layers?: Layer[];
+  setLayers?: React.Dispatch<React.SetStateAction<Layer[]>>;
   selectedLayer?: Layer | null;
   selectedLayers?: Layer[];
   toggleLayer?: (layer: Layer) => void;
@@ -27,6 +28,7 @@ export type EditorContextType = {
   focusCenter?: () => void;
   selectedIds?: string[];
   setSelectedIds?: React.Dispatch<React.SetStateAction<string[]>>;
+  setLayersHistory?: React.Dispatch<React.SetStateAction<LayerHistory[]>>;
 
   // 尺寸和位置
   viewportSize?: Size;
@@ -60,8 +62,8 @@ export type EditorContextType = {
   keyManager?: KeyManager;
 
   // 保存图片
-  saveImage?: (params: { layer: Layer }) => void;
-  addImage?: ({ fileUrl, image }: { fileUrl: string; image: HTMLImageElement }) => void;
+  saveImage?: (params: { layer: Layer }) => Promise<void>;
+  addImage?: ({ fileUrl, image }: { fileUrl: string; image: HTMLImageElement }) => Promise<void>;
 };
 
 const EditorContext = createContext<EditorContextType>({

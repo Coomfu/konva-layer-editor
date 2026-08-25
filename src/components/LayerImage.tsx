@@ -1,7 +1,7 @@
 import { useContext, useCallback, useEffect, useState, useRef, useMemo } from 'react';
 import { Image as KonvaImage } from 'react-konva';
 import EditorContext from '../context';
-import type { Layer, Position, Rect, Size } from '../type/types';
+import type { Layer, Rect, Size } from '../type/types';
 import type { Image } from 'konva/lib/shapes/Image';
 import { MAX_IMAGE_SIZE } from '../utils/const';
 
@@ -24,14 +24,8 @@ const LayerImage: React.FC<Layer> = (layer: Layer) => {
     return selectedLayers && selectedLayers?.length > 1;
   }, [selectedLayers]);
 
-  const position = useRef<Position>({ x: layer.x, y: layer.y });
   // 图片拖拽框宽高
   const [size, setSize] = useState<Size>({ width, height });
-  // 图片包含被遮挡部分的当前宽高，当作比例尺用
-  const [imageSize, setImageSize] = useState<Size>({
-    width: imgWidth,
-    height: imgHeight,
-  });
   // 遮挡部分的属性，这个需要根据图片宽高再统一比例尺
   const [cropRect, setCropRect] = useState<Rect>({
     x: cropX,
@@ -44,123 +38,136 @@ const LayerImage: React.FC<Layer> = (layer: Layer) => {
 
   const handleTransform = useCallback(() => {
     const node = imageRef.current;
-    if (!node) return;
+    if (!node || !image) return;
 
     const anchor = transformerRef?.current?.getActiveAnchor();
 
     const scaleX = node.scaleX() < 0 ? -node.scaleX() : node.scaleX();
     const scaleY = node.scaleY() < 0 ? -node.scaleY() : node.scaleY();
-    let newWidth = Math.min(Math.max(20, node.width() * scaleX), MAX_IMAGE_SIZE);
-    let newHeight = Math.min(Math.max(20, node.height() * scaleY), MAX_IMAGE_SIZE);
-
-    node.scaleX(1);
-    node.scaleY(1);
+    const nodeWidth = node.width();
+    const nodeHeight = node.height();
+    const currentImageSize = {
+      width: node.attrs.imgWidth || imgWidth,
+      height: node.attrs.imgHeight || imgHeight,
+    };
+    const currentCropRect = {
+      x: node.cropX(),
+      y: node.cropY(),
+      width: node.cropWidth() || image.width,
+      height: node.cropHeight() || image.height,
+    };
+    let newWidth = Math.min(Math.max(20, nodeWidth * scaleX), MAX_IMAGE_SIZE);
+    let newHeight = Math.min(Math.max(20, nodeHeight * scaleY), MAX_IMAGE_SIZE);
+    const nextAttrs: Record<string, number> = {
+      scaleX: 1,
+      scaleY: 1,
+    };
 
     // 如果拖动四个角，那么就按比例改变
     if (anchor === 'top-left' || anchor === 'top-right' || anchor === 'bottom-left' || anchor === 'bottom-right') {
       if (newWidth >= MAX_IMAGE_SIZE) {
-        newHeight = (newWidth * node.height()) / node.width();
+        newHeight = (newWidth * nodeHeight) / nodeWidth;
       } else if (newHeight >= MAX_IMAGE_SIZE) {
-        newWidth = (newHeight * node.width()) / node.height();
+        newWidth = (newHeight * nodeWidth) / nodeHeight;
       }
-      setImageSize({
-        width: Number(((newWidth / size.width) * imageSize.width).toFixed(4)),
-        height: Number(((newHeight / size.height) * imageSize.height).toFixed(4)),
-      });
-      node.setAttrs({
-        imgWidth: Number(((newWidth / size.width) * imageSize.width).toFixed(4)),
-        imgHeight: Number(((newHeight / size.height) * imageSize.height).toFixed(4)),
-      });
+      nextAttrs.imgWidth = Number(((newWidth / nodeWidth) * currentImageSize.width).toFixed(4));
+      nextAttrs.imgHeight = Number(((newHeight / nodeHeight) * currentImageSize.height).toFixed(4));
+      nextAttrs.width = Number(newWidth.toFixed(4));
+      nextAttrs.height = Number(newHeight.toFixed(4));
     } else {
-      // 拖动四条边
-      const aspectRatio = newWidth / newHeight;
-      const imageRatio = image.width / image.height;
+      // 拖动四条边进行裁剪
+      const ratioX = image.width / currentImageSize.width;
+      const ratioY = image.height / currentImageSize.height;
 
-      let newCropWidth = cropRect.width || image.width;
-      let newCropHeight = cropRect.height || image.height;
-      let newCropX = cropRect.x;
-      let newCropY = cropRect.y;
+      if (anchor === 'middle-right') {
+        const deltaWidth = newWidth - nodeWidth;
+        let newCropWidth = currentCropRect.width + deltaWidth * ratioX;
 
-      if (anchor === 'middle-left' || anchor === 'middle-right') {
-        // 宽变大 -- 产品说禁止大过原图
-        if (newWidth >= imageSize.width) {
-          newWidth = imageSize.width;
-          setImageSize({
-            width: Number(newWidth.toFixed(4)),
-            height: imageSize.height >= node.height() ? node.height() : Number((newWidth / imageRatio).toFixed(4)),
-          });
-          node.setAttrs({
-            imgWidth: Number(newWidth.toFixed(4)),
-            imgHeight: Number((newWidth / imageRatio).toFixed(4)),
-          });
-          newCropWidth = image.width;
-          // newCropHeight = image.width / aspectRatio;
+        // 右边界保护：不能超过原图右边界，且宽度不能超过原图全宽
+        if (currentCropRect.x + newCropWidth > image.width || newWidth >= currentImageSize.width) {
+          newCropWidth = image.width - currentCropRect.x;
+          newWidth = Math.min(newCropWidth / ratioX, currentImageSize.width);
+        }
+
+        nextAttrs.width = Number(newWidth.toFixed(4));
+        nextAttrs.cropWidth = Number(newCropWidth.toFixed(4));
+      } else if (anchor === 'middle-left') {
+        const rightEdge = node.x() + nodeWidth * scaleX;
+        const deltaWidth = nodeWidth - newWidth;
+        const cropXChange = deltaWidth * ratioX;
+
+        let newCropX = currentCropRect.x + cropXChange;
+        let newCropWidth = currentCropRect.width - cropXChange;
+
+        // 左边界保护：向左拉到原图左边界 (cropX < 0) 或超出原图全宽时
+        if (newCropX < 0 || newWidth >= currentImageSize.width) {
           newCropX = 0;
-          newCropY = newCropY + (cropRect.height - newCropHeight) / 2; // 实际cropHeight是越变越小
-        } else if (newWidth < imageSize.width) {
-          // 宽缩小
-          if (anchor === 'middle-left') {
-            // 拖的左边
-            newCropWidth = (newWidth / imageSize.width) * image.width;
-            newCropX = newCropX - newCropWidth + cropRect.width;
-          } else if (anchor === 'middle-right') {
-            newCropWidth = (newWidth / imageSize.width) * image.width;
-            // 拖右边时，如果宽度不够了，就要先把newCropX减到0
-            if (newCropWidth + newCropX > image.width) {
-              newCropX = newCropX - (newCropWidth + newCropX - image.width);
-            }
-          }
+          newCropWidth = Math.min(currentCropRect.x + currentCropRect.width, image.width);
+          newWidth = Math.min(newCropWidth / ratioX, currentImageSize.width);
         }
-      }
 
-      if (anchor === 'top-center' || anchor === 'bottom-center') {
-        // 高变大 -- 产品说禁止大过原图
-        if (newHeight >= imageSize.height) {
-          newHeight = imageSize.height;
-          setImageSize({
-            height: Number(newHeight.toFixed(4)),
-            width: imageSize.width === node.width() ? node.width() : Number((newHeight * imageRatio).toFixed(4)),
-          });
-          node.setAttrs({
-            imgWidth: Number((newHeight * imageRatio).toFixed(4)),
-            imgHeight: Number(newHeight.toFixed(4)),
-          });
-          // newCropWidth = image.height * aspectRatio;
-          newCropHeight = image.height;
+        const newX = rightEdge - newWidth;
+
+        nextAttrs.x = Number(newX.toFixed(4));
+        nextAttrs.width = Number(newWidth.toFixed(4));
+        nextAttrs.cropX = Number(newCropX.toFixed(4));
+        nextAttrs.cropWidth = Number(newCropWidth.toFixed(4));
+      } else if (anchor === 'bottom-center') {
+        const deltaHeight = newHeight - nodeHeight;
+        let newCropHeight = currentCropRect.height + deltaHeight * ratioY;
+
+        // 下边界保护：不能超过原图下边界，且高度不能超过原图全高
+        if (currentCropRect.y + newCropHeight > image.height || newHeight >= currentImageSize.height) {
+          newCropHeight = image.height - currentCropRect.y;
+          newHeight = Math.min(newCropHeight / ratioY, currentImageSize.height);
+        }
+
+        nextAttrs.height = Number(newHeight.toFixed(4));
+        nextAttrs.cropHeight = Number(newCropHeight.toFixed(4));
+      } else if (anchor === 'top-center') {
+        const bottomEdge = node.y() + nodeHeight * scaleY;
+        const deltaHeight = nodeHeight - newHeight;
+        const cropYChange = deltaHeight * ratioY;
+
+        let newCropY = currentCropRect.y + cropYChange;
+        let newCropHeight = currentCropRect.height - cropYChange;
+
+        // 上边界保护：向上拉到原图上边界 (cropY < 0) 或超出原图全高时
+        if (newCropY < 0 || newHeight >= currentImageSize.height) {
           newCropY = 0;
-          newCropX = newCropX + (cropRect.width - newCropWidth) / 2;
-        } else if (newHeight < imageSize.height) {
-          // 高缩小
-          if (anchor === 'top-center') {
-            // 拖的上边
-            newCropHeight = (newHeight / imageSize.height) * image.height;
-            newCropY = newCropY - newCropHeight + cropRect.height;
-          } else if (anchor === 'bottom-center') {
-            newCropHeight = (newHeight / imageSize.height) * image.height;
-            if (newCropHeight + newCropY > image.height) {
-              newCropY = newCropY - (newCropHeight + newCropY - image.height);
-            }
-          }
+          newCropHeight = Math.min(currentCropRect.y + currentCropRect.height, image.height);
+          newHeight = Math.min(newCropHeight / ratioY, currentImageSize.height);
         }
+
+        const newY = bottomEdge - newHeight;
+
+        nextAttrs.y = Number(newY.toFixed(4));
+        nextAttrs.height = Number(newHeight.toFixed(4));
+        nextAttrs.cropY = Number(newCropY.toFixed(4));
+        nextAttrs.cropHeight = Number(newCropHeight.toFixed(4));
       }
-
-      newCropX = Math.max(0, newCropX);
-      newCropY = Math.max(0, newCropY);
-
-      position.current = { x: node.x(), y: node.y() };
-      setCropRect({
-        x: newCropX,
-        y: newCropY,
-        width: newCropWidth,
-        height: newCropHeight,
-      });
     }
 
-    setSize({
-      width: Number(newWidth.toFixed(4)),
-      height: Number(newHeight.toFixed(4)),
+    node.setAttrs({
+      ...nextAttrs,
     });
-  }, [imageSize, size, cropRect, image]);
+  }, [image, transformerRef, imgWidth, imgHeight]);
+
+  const handleTransformEnd = useCallback(() => {
+    const node = imageRef.current;
+    if (!node) return;
+
+    setSize({
+      width: Number(node.width().toFixed(4)),
+      height: Number(node.height().toFixed(4)),
+    });
+    setCropRect({
+      x: node.cropX(),
+      y: node.cropY(),
+      width: node.cropWidth(),
+      height: node.cropHeight(),
+    });
+  }, []);
 
   const handleSelect = useCallback(() => {
     if (keyManager?.keycon.shiftKey && (cursor === 'default' || cursor === 'merge')) {
@@ -202,7 +209,6 @@ const LayerImage: React.FC<Layer> = (layer: Layer) => {
   useEffect(() => {
     setSize({ width, height });
     setCropRect({ x: cropX, y: cropY, width: cropWidth, height: cropHeight });
-    setImageSize({ width: imgWidth, height: imgHeight });
     const node = imageRef.current;
     node?.setAttrs({
       imgWidth,
@@ -223,6 +229,7 @@ const LayerImage: React.FC<Layer> = (layer: Layer) => {
       onDragMove={() => {}}
       onDragEnd={() => {}}
       onTransform={handleTransform}
+      onTransformEnd={handleTransformEnd}
       ref={imageRef}
       width={size.width}
       height={size.height}

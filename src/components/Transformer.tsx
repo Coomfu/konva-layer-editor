@@ -35,47 +35,33 @@ const Transformer = () => {
     updateLayers?.(dragNodes.map((node) => node.attrs) || []);
   }, [updateLayers, isMultiSelected]);
 
-  const handleTransform = useCallback((e: any) => {
-    if (isMultiSelected) return;
+  const handleTransform = useCallback(
+    (e: any) => {
+      if (isMultiSelected) return;
 
-    const dragNodes = transformerRef?.current?.nodes();
-    if (!dragNodes || !dragNodes.length) return;
+      const dragNodes = transformerRef?.current?.nodes();
+      if (!dragNodes || !dragNodes.length) return;
 
-    const node = dragNodes[0];
-    const { x, y, width, height, imgWidth, imgHeight } = node.attrs;
+      const node = dragNodes[0];
+      const { x, y, width, height } = node.attrs;
 
-    // 限制图片在画布上的最大最小值
-    const minX = -MAX_IMAGE_SIZE;
-    const maxX = MAX_VIEWPORT_SIZE + MAX_IMAGE_SIZE;
-    const minY = -MAX_IMAGE_SIZE;
-    const maxY = MAX_VIEWPORT_SIZE + MAX_IMAGE_SIZE;
+      // 限制图片在画布上的最大最小值
+      const minX = -MAX_IMAGE_SIZE;
+      const maxX = MAX_VIEWPORT_SIZE + MAX_IMAGE_SIZE;
+      const minY = -MAX_IMAGE_SIZE;
+      const maxY = MAX_VIEWPORT_SIZE + MAX_IMAGE_SIZE;
 
-    if (x + width < minX + 40 || y + height < minY + 40 || x > maxX - 40 || y > maxY - 40) {
-      node.position(dragPosition.current);
-      return;
-    }
+      if (x + width < minX + 40 || y + height < minY + 40 || x > maxX - 40 || y > maxY - 40) {
+        if (dragPosition.current) {
+          node.position(dragPosition.current);
+        }
+        return;
+      }
 
-    // 以下代码为了解决设定最大尺寸后，拖边拖角x和y会动的bug
-    const anchor = transformerRef?.current?.getActiveAnchor();
-    // 拖角，到了全局最大值才不能动
-    // 拖边，到当前图片尺寸或全局最大值就不能动
-    if (
-      ((anchor === 'top-left' || anchor === 'bottom-left' || anchor === 'top-right') &&
-        (width >= MAX_IMAGE_SIZE || height >= MAX_IMAGE_SIZE)) ||
-      ((anchor === 'top-center' || anchor === 'bottom-center') && (height >= imgHeight || height >= MAX_IMAGE_SIZE)) ||
-      ((anchor === 'middle-left' || anchor === 'middle-right') && (width >= imgWidth || width >= MAX_IMAGE_SIZE))
-    ) {
-      node.position(dragPosition.current);
-
-      node.setAttrs({
-        skewX: 0,
-        skewY: 0,
-      });
-      return;
-    }
-
-    dragPosition.current = { x, y };
-  }, []);
+      dragPosition.current = { x, y };
+    },
+    [isMultiSelected, transformerRef],
+  );
 
   const handleTransformEnd = useCallback(() => {
     const dragNodes = transformerRef?.current?.nodes();
@@ -140,10 +126,80 @@ const Transformer = () => {
       resizeEnabled={cursor === 'default'}
       rotateEnabled={cursor === 'default'}
       boundBoxFunc={(oldBox, newBox) => {
-        // 禁止翻转
-        if (newBox.width < 20 || newBox.height < 20) {
+        // 禁止翻转与过小尺寸
+        if (Math.abs(newBox.width) < 20 || Math.abs(newBox.height) < 20) {
           return oldBox;
         }
+
+        if (isMultiSelected) {
+          if (newBox.width > MAX_IMAGE_SIZE || newBox.height > MAX_IMAGE_SIZE) {
+            return oldBox;
+          }
+          return newBox;
+        }
+
+        const dragNodes = transformerRef?.current?.nodes();
+        if (!dragNodes || !dragNodes.length) return newBox;
+        const node = dragNodes[0];
+        const anchor = transformerRef?.current?.getActiveAnchor();
+        if (!anchor) return newBox;
+
+        const cropX = node.cropX() ?? 0;
+        const cropY = node.cropY() ?? 0;
+        const imgWidth = node.attrs.imgWidth || node.width();
+        const imgHeight = node.attrs.imgHeight || node.height();
+        const image = node.attrs.image;
+        const naturalWidth = image?.width || imgWidth;
+        const naturalHeight = image?.height || imgHeight;
+
+        const ratioX = naturalWidth / imgWidth;
+        const ratioY = naturalHeight / imgHeight;
+
+        if (anchor === 'middle-left') {
+          const maxExpandLeft = cropX / ratioX;
+          const minX = oldBox.x + oldBox.width - Math.min(node.width() + maxExpandLeft, imgWidth, MAX_IMAGE_SIZE);
+          if (newBox.x < minX) {
+            newBox.x = minX;
+            newBox.width = oldBox.x + oldBox.width - minX;
+          }
+          if (newBox.width > MAX_IMAGE_SIZE) {
+            newBox.x = oldBox.x + oldBox.width - MAX_IMAGE_SIZE;
+            newBox.width = MAX_IMAGE_SIZE;
+          }
+        } else if (anchor === 'top-center') {
+          const maxExpandTop = cropY / ratioY;
+          const minY = oldBox.y + oldBox.height - Math.min(node.height() + maxExpandTop, imgHeight, MAX_IMAGE_SIZE);
+          if (newBox.y < minY) {
+            newBox.y = minY;
+            newBox.height = oldBox.y + oldBox.height - minY;
+          }
+          if (newBox.height > MAX_IMAGE_SIZE) {
+            newBox.y = oldBox.y + oldBox.height - MAX_IMAGE_SIZE;
+            newBox.height = MAX_IMAGE_SIZE;
+          }
+        } else if (anchor === 'middle-right') {
+          const maxExpandRight = (naturalWidth - (cropX + (node.cropWidth() || naturalWidth))) / ratioX;
+          const maxWidth = Math.min(node.width() + maxExpandRight, imgWidth, MAX_IMAGE_SIZE);
+          if (newBox.width > maxWidth) {
+            newBox.width = maxWidth;
+          }
+        } else if (anchor === 'bottom-center') {
+          const maxExpandBottom = (naturalHeight - (cropY + (node.cropHeight() || naturalHeight))) / ratioY;
+          const maxHeight = Math.min(node.height() + maxExpandBottom, imgHeight, MAX_IMAGE_SIZE);
+          if (newBox.height > maxHeight) {
+            newBox.height = maxHeight;
+          }
+        } else if (
+          anchor === 'top-left' ||
+          anchor === 'top-right' ||
+          anchor === 'bottom-left' ||
+          anchor === 'bottom-right'
+        ) {
+          if (newBox.width > MAX_IMAGE_SIZE || newBox.height > MAX_IMAGE_SIZE) {
+            return oldBox;
+          }
+        }
+
         return newBox;
       }}
     />

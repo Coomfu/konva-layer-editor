@@ -56,9 +56,30 @@
     }
   }
 
-  .sidebar-button-label {
-    font-size: 11px;
-    line-height: 14px;
-    text-align: center;
+  .tool-bar-footer {
+    margin-top: auto;
+    padding: 12px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-top: 1px solid #f0f0f0;
+
+    .sidebar-footer-button {
+      color: #475569;
+
+      &:hover:not(.sidebar-button-disabled) {
+        color: #0f172a;
+        background-color: #f1f5f9;
+      }
+    }
+
+    .sidebar-button-disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
   }
 }
